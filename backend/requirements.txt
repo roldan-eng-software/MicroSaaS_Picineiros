@@ -1,0 +1,23 @@
+Django>=5.2
+djangorestframework>=3.16
+django-cors-headers>=4.9
+python-dotenv>=1.2
+djangorestframework-simplejwt>=5.5
+django-filter==24.1
+pytest==7.4.3
+pytest-django==4.7.0
+
+
+# Application server
+gunicorn>=21.2
+
+# Async tasks
+celery>=5.3
+redis>=5.0
+django-celery-beat>=2.6
+
+# Database driver for Postgres
+psycopg2-binary>=2.9
+
+# Reports/PDF
+reportlab>=4.0
