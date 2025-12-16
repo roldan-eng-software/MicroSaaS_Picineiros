@@ -15,6 +15,9 @@ from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -142,6 +145,19 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Sentry configuration (optional)
+SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT", "local")
+SENTRY_TRACES_SAMPLE_RATE = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.0"))
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration(), CeleryIntegration()],
+        environment=SENTRY_ENVIRONMENT,
+        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+        send_default_pii=False,
+    )
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
@@ -203,18 +219,30 @@ CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = False
 CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"
 
+# Logging JSON configuration
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "json": {
+            "()": "python_json_logger.jsonlogger.JsonFormatter",
+            "fmt": "%(asctime)s %(levelname)s %(name)s %(message)s",
+        }
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-        },
+            "formatter": "json",
+        }
     },
+    "root": {"handlers": ["console"], "level": LOG_LEVEL},
     "loggers": {
-        "accounts": {
-            "handlers": ["console"],
-            "level": "INFO",
-        },
+        "django.request": {"level": "WARNING"},
+        "accounts": {"level": LOG_LEVEL},
+        "clientes": {"level": LOG_LEVEL},
+        "agendamentos": {"level": LOG_LEVEL},
+        "financeiro": {"level": LOG_LEVEL},
+        "notificacoes": {"level": LOG_LEVEL},
     },
 }
