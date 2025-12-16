@@ -145,6 +145,11 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+# Email configuration (for development)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
 # Sentry configuration (optional)
 SENTRY_DSN = os.getenv("SENTRY_DSN", "")
 SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT", "local")
