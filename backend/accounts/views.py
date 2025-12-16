@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import LoginSerializer, MeSerializer
+from .serializers import LoginSerializer, MeSerializer, UserCreateSerializer
 
 logger = logging.getLogger("accounts")
 User = get_user_model()
@@ -33,6 +33,15 @@ def _refresh_cookie_kwargs(request):
 def csrf_view(request):
     token = get_token(request)
     return Response({"csrfToken": token})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def register_view(request):
+    serializer = UserCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = serializer.save()
+    return Response(MeSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["POST"])
